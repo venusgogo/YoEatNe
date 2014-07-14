@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>창업성장과제</title>
+
+<link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script type="text/javascript" src="./lib/phonegap.facebook.inappbrowser.js"></script>
+<script type="text/javascript" charset="utf-8">
+	var pictureSource; // picture source
+	var destinationType; // sets the format of returned value
+	var lats, lngs;
+	var useraddr;
+	document.addEventListener("deviceready", onDeviceReady, false);
+	var db = window.openDatabase("yoeatne", "1.0", "yoeatne auto-login DB", 200000);
+	
+	//폰갭 첫 실행시 기기가 준비될 경우 가장 먼저 실행되는 함수
+	function onDeviceReady() {
+		//사진의 타입과 저장 경로 설정
+		pictureSource = navigator.camera.PictureSourceType;
+		destinationType = navigator.camera.DestinationType;
+	    document.addEventListener("backbutton", onBackKeyDown, false); 
+	        
+	    db.transaction(populateDB, errorCB, successCB);
+	      
+// 	    $.ajax({
+// 			type : "POST",
+// 			url : "ajax/panel.html",
+// 			dataType : "html",
+// 			data : listData,
+// 			success : function(data) {
+// 				$("#mypanel").html(data);
+// // 				alert(data);
+// 			},
+// 			error : function() {
+// 				alert("Failed");
+// 			}
+// 		});
+
+// 		//초기 좌표 설정
+// 		navigator.geolocation.getCurrentPosition(onSuccess, onError);
+		
+	}
+	
+	//create table and insert some record
+    function populateDB(tx) {
+		tx.executeSql('DROP TABLE IF EXISTS yoeatne');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS yoeatne (id INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL, token TEXT NOT NULL)');
+        tx.executeSql('INSERT INTO yoeatne(id,token) VALUES ("test1", "token11111")');
+        tx.executeSql('INSERT INTO yoeatne(id,token) VALUES ("test222", "token22222")');
+    }
+	
+  	//function will be called when an error occurred
+    function errorCB(err) {
+        alert("Error processing SQL: "+err.code);
+    }
+  	
+  	//function will be called when process succeed
+    function successCB() {
+        alert("success!");
+        db.transaction(queryDB,errorCB);
+    }
+  	
+  	//select all
+    function queryDB(tx){
+        tx.executeSql('SELECT * FROM yoeatne',[],querySuccess,errorCB);
+    }
+  	
+    function querySuccess(tx,result) {   	
+    	
+        $('#list').empty();
+        $.each(result.rows,
+			function(index) {
+	            var row = result.rows.item(index);
+	            $('#list').append('<li><a href="#"><h3 class="ui-li-heading">'+row['id']+'</h3><p class="ui-li-desc">Club '+row['token']+'</p></a></li>');
+       		 });
+ 
+        $('#list').listview();
+    }
+ 
+	
+    
+    
+    
+    
+    
+	
+	
+	
+	function temp(tx, result){ 
+		var listData = "", tmpCnt = 0;
+		
+		//리스트에 결과 뿌리기
+		jQuery.each(result.rows,function(index){
+			var row = result.rows.item(index);
+			listData += "<li>[" + row['dt'] + "] <font color='red'>" + row['id'] + "</font></li>";
+			tmpCnt ++;
+		});
+		
+		$("#list").empty();
+		$("#list").append(listData).listview("refresh");
+		
+		//결과가 0건일때
+		if(tmpCnt == 0) {
+			listData += "<div class='ui-block-a' style='width:100%; text-align:center;'>등록된 자료가 존재하지 않습니다.</div>";
+			$("#mypanel").html(listData);
+		}
+	}
+	  
+     function temp2(err) {
+          alert('select error');
+     }
+     
+     //jquery 초기화
+     $(function() {
+    	 
+     });
+     
+	function onBackKeyDown() {
+	       navigator.notification.confirm('종료하시겠습니까?', onConfirm, '종료', '종료, 취소');
+	}
+	
+	function onConfirm(button) { 
+		if(button == 1) {
+        	navigator.app.exitApp();
+      	}
+ 	} 
+
+	// QR코드 스캔 테스트
+	function scans() {
+		cordova.plugins.barcodeScanner.scan(function(result) {
+			//바코드의 정보를 alert창에 표시함
+			alert("We got a barcode\n" + "Result: " + result.text + "\n"
+					+ "Format: " + result.format + "\n" + "Cancelled: "
+					+ result.cancelled);
+		}, function(error) {
+			alert("Scanning failed: " + error);
+		});
+
+	}
+
+	// QR코드 생성 테스트
+	function encode() {
+		//data 값을 QR코드로 만듬
+		var data = "www.naver.com";
+		function success() {
+			console.log("ok");
+		}
+		function fail() {
+			alert('fail');
+		}
+		cordova.plugins.barcodeScanner.encode("TEXT_TYPE", data,
+				success, fail);
+	}
+
+	//NFC 스티커에 앱실행을 위한 데이터 입력.
+	function writeTag(nfcEvent) {
+
+		var mimeType = "application/gettestnfc", //이걸로 앱 실행
+		payload = "임의의 값", record = ndef.mimeMediaRecord(mimeType, nfc
+				.stringToBytes(payload));
+
+		nfc.write([ record ], function() {
+			alert("정상적으로 쓰기가 동작하였습니다 : " + mimeType);
+
+		}, function(reason) {
+			console.log("There was a problem");
+		});
+	}
+
+	//NFC의 활성화를 알아보는 함수
+	var ready = function() {
+		//기기의 NFC가 활성화 되어 있으면 win 함수 실행
+		//NFC가 활성화되어 있지 않으면 fail 함수 실행
+		function win() {
+			console.log("Listening for NDEF tags");
+		}
+		function fail() {
+			alert('not ready NFC! Failed to register NFC Listener');
+		}
+		nfc.addNdefListener(writeTag, win, fail);
+	};
+
+	//NFC 스티커 읽기 시작 함수
+	var read = function() {
+		console.log("NFC 태그 읽기 시작");
+		nfc.addNdefListener(nfcTagDetected);
+
+	};
+
+	// NFC 스티커를 읽어들이는 함수
+	function nfcTagDetected(nfcEvent) {
+
+		var tag = nfcEvent.tag, ndefMessage = tag.ndefMessage;
+
+		console.log(JSON.stringify(ndefMessage));
+		alert(nfc.bytesToString(ndefMessage[0].payload)); //출력
+		nfc.removeNdefListener(nfcTagDetected);
+
+	}
+
+	// 아직 구현되지 않았습니다. (NFC 스티커 초기화를 위한 함수)
+	function initNFC() {
+		console.log('삭제중입니다');
+		function win() {
+			console.log("삭제가 완료됬습니다.");
+		}
+
+		function fail() {
+			alert('삭제 실패');
+		}
+		nfc.erase(win, fail);
+	}
+
+	function onPhotoDataSuccess(imageData) {
+
+		var smallImage = document.getElementById('smallImage');
+
+		smallImage.style.display = 'block';
+
+		smallImage.src = "data:image/jpeg;base64," + imageData;
+	}
+
+	function onPhotoURISuccess(imageURI) {
+		// Uncomment to view the image file URI
+		// console.log(imageURI);
+
+		// Get image handle
+		//
+		var largeImage = document.getElementById('largeImage');
+
+		// Unhide image elements
+		//
+		largeImage.style.display = 'block';
+
+		// Show the captured photo
+		// The in-line CSS rules are used to resize the image
+		//
+		largeImage.src = imageURI;
+	}
+
+	// A button will call this function
+	//
+	function capturePhoto() {
+		navigator.camera.getPicture(onPhotoDataSuccess, onFail, {
+			quality : 50,
+			destinationType : destinationType.DATA_URL
+		});
+	}
+
+	// A button will call this function
+	//
+	function capturePhotoEdit() {
+		// Take picture using device camera, allow edit, and retrieve image as base64-encoded string
+		navigator.camera.getPicture(onPhotoDataSuccess, onFail, {
+			quality : 20,
+			allowEdit : true,
+			destinationType : destinationType.DATA_URL
+		});
+	}
+
+	// A button will call this function
+	//
+	function getPhoto(source) {
+		navigator.camera.getPicture(onPhotoURISuccess, onFail, {
+			quality : 50,
+			destinationType : destinationType.FILE_URI,
+			sourceType : source
+		});
+	}
+
+	// Called if something bad happens.
+	//
+	function onFail(message) {
+		alert('Failed because: ' + message);
+	}
+	
+	//초기 onDeviceReady에서 좌표정보 받기에 성공하면 이 함수에서 좌표정보를 위,경도로 분리한다.
+	function onSuccess(position) {
+			lats = position.coords.latitude;
+			lngs = position.coords.longitude;
+			console.log("초기 좌표 설정 완료" + position);
+	}
+
+
+	//로그인 서버 <-> 스마트폰 POST 통신 AJAX 사용함.
+	function login() {
+		console.log("=======++++++++ Login");
+		
+		$.ajax({
+			type : "POST",
+			url : "http://www.yoeatne.com/appLogin.php",
+			dataType : "html",
+			data : $("#frmLogin").serialize(),
+			success : function(data) {
+				if(data == "success") {
+					$("#message").html("<p style='color:green;font-weight:bold'>로그인 성공!</p>");
+					window.location.replace('main_temp.html');
+				} else if(data == "empty") {
+					$("#message").html("<p style='color:red'>아이디 또는 비밀번호가 잘못되었습니다.</p>");					
+				} else {
+					$("#message").html("");
+					navigator.notification.alert(data);	
+				}
+				
+			},			
+			error : function(data) {
+				console.log("============== Error");
+			}
+		});
+		
+		return false;
+	}
+	
+	function fb_login() {
+		
+		FacebookInAppBrowser.settings.appId = '669594569792152';
+        FacebookInAppBrowser.settings.redirectUrl = 'http://www.facebook.com/connect/login_success.html';
+        FacebookInAppBrowser.settings.permissions = 'email';
+	    
+	    var loginSuccessCallback = function() {
+            alert('페이스북 계정으로 로그인 성공!');
+            console.log(window.localStorage.getItem('accessToken'));
+        },
+        loginUnknowErrorCallback = function() {
+            alert('다시 시도 하시겠습니까?');
+        };
+        
+		FacebookInAppBrowser.login(loginSuccessCallback, loginUnknowErrorCallback);
+	}
+	
+	function onError(error) {
+		alert('code: ' + error.code + '\n' + 'message: ' + error.message + '\n');
+		lats = 35.241447;
+		lngs = 128.645119;
+	}
+// // 		좌표정보를 주소 정보로 변환하는 함수
+// 		function setaddress(){
+// 			var latlng = new google.maps.LatLng(lats, lngs);
+// 			var geocoder =  new google.maps.Geocoder();
+// 			geocoder.geocode({
+// 				'latLng':latlng}, function(results,status){
+// 					console.log('현제 주소 : ' + results[1].formatted_address);
+// 					useraddr = results[1].formatted_address;
+// 					alert('현제 주소 : ' + useraddr + ' (를)을 사용합니다.');
+// 					});
+// 			alert('선택된 날짜 : ' +	$("#meetDay").val());
+// 		}
+
+	//구글맵 관련 변수 설정
+	var map;
+	var markers = [];
+	var contentString = '안녕하세요'
+	var getlat = new Array();
+	var getlng = new Array();
+	var watchID = null;
+	var pos = null;
+	
+	//구글맵 초기화 함수, 초기 사용자 위치 마커를 표시함.
+	function initialize() {
+		var latlng = new google.maps.LatLng(lats, lngs);
+		parse_codenet();
+		// 맵 정보 환경설정정보 줌레벨, 중심좌표
+		var mapOptions = {
+			zoom : 17,
+			center : latlng
+		};
+
+		map = new google.maps.Map(document.getElementById('map_canvas'),
+				mapOptions);
+		addMarker(latlng);
+
+		//
+		google.maps.event.addListener(map, 'idle', function() {
+			var bounds = map.getBounds();
+			var endLo = bounds.getNorthEast();
+			var startLo = bounds.getSouthWest();
+			addMarke(startLo, endLo);
+		});
+
+		google.maps.event.addListener(map, 'zoom_changed', function() {
+			var bounds = map.getBounds();
+			var endLo = bounds.getNorthEast();
+			var startLo = bounds.getSouthWest();
+			addMarke(startLo, endLo);
+		});
+
+		google.maps.event.addListener(map, 'dragend', function() {
+			var bounds = map.getBounds();
+			var endLo = bounds.getNorthEast();
+			var startLo = bounds.getSouthWest();
+			addMarke(startLo, endLo);
+		});
+
+	}
+	//서버에서 좌표정보를 수신받음 서버 <-> 스마트폰 POST 통신 AJAX 사용함.
+	function parse_codenet() {
+		var form_data = {
+			no : 1
+		//좌표정보 요청을 위한 키값
+		};
+
+		$.ajax({
+			type : "POST", // 통신 형식 GET/POST
+			data : form_data, //넘기는 데이터
+			url : "http://hyuns1234.dothome.co.kr/api/gps.php", //서버 주소
+			dataType : "xml", //데이터 형식
+			async : false,
+			success : function parse(xml) {
+				$codes = $(xml).find("user");
+				var codes_count = $codes.length;
+				console.log(codes_count);
+
+				$codes.each(function() {
+					getlat.push($(this).find("lat").text());
+					getlng.push($(this).find("lng").text());
+				});
+				//for (var i = 0; i < codes_count; i++) {
+				//	console.log(getlat[i]);
+				//	console.log(getlng[i]);
+				//}
+			}
+		});
+	}
+	//구글지도 v3 을 사용하며, 가끔 스크립트가 정상적으로 불러지지 않는 오류가 생겨, 함수에서 직접 불러 사용 하는 방법을 사용함. 
+	function loadScript() {
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true&'
+				+ 'callback=initialize';
+		//
+		document.body.appendChild(script);
+
+	}
+	//map_page가 열리면 loadScript가 실행됨
+	$('#map_page').live("pageshow", function() {
+		console.log('재실행');
+		loadScript();
+
+	});
+
+	// 마커를 지도상에 표시하는 함수
+	function addMarker(location) {
+		var markicon = "http://google-maps-icons.googlecode.com/files/walking-tour.png";
+		var marker = new google.maps.Marker({
+			position : location, //좌표정보
+			map : map,
+			icon : markicon
+		});
+		console.log('현제위치 마커생성');
+
+	}
+	// 사용자의 현재 위치를 추적하기 위한 함수
+	function chasePos() {
+		pos = {
+				enableHighAccuracy:true, //높은 정확도 모드
+				  maximumAge:0,
+				  timeout           : 10000
+		};
+		watchID = navigator.geolocation.watchPosition(onSuccessWatch, onError, pos);
+		console.log('위치 추적 시작');
+
+
+	}
+	// 위치 추적 성공 시, 좌표정보를 받아 마커로 그리는 함수
+	// html에 geolocation 태그에 현재 받아온 좌표정보를 실시간으로 나타낸다.
+	function onSuccessWatch(position)
+	{
+		alert('위치 추적 성공');
+		var element = document.getElementById('geolocation');
+		element.innerHTML = 'Latitude: ' + position.coords.latitude + '<br />'
+				+ 'Longitude: ' + position.coords.longitude + '<br />'
+				+ '<hr />' + element.innerHTML;
+		addMarker(position);
+
+	}
+
+	// 위치 추적 중단
+	function stopchase() {
+		watchID = null;
+		pos.enableHighAccuracy = false; //
+		navigator.geolocation.clearWatch(watchID);
+		
+		var element = document.getElementById('geolocation');
+		element.innerHTML = '위치 추적 종료';
+	}
+	
+	//서버에서 받은 좌표정보를 마커로 뿌려주는 함수
+	function addMarke(start, end) {
+		for (var i = 0; i < getlat.length; i++) {
+			var location = new google.maps.LatLng(getlat[i], getlng[i]);
+
+			var marker = new google.maps.Marker({
+				position : location,
+				map : map,
+
+			});
+			markers.push(marker);
+
+		}
+
+	}
+	
+</script>
+
+</head>
+<body>
+	
+	<!-- 모든 페이지는 index.html에서 구현됩니다. div의 data-rol="page" 속성을 사용합니다. -->
+	<!-- 페이지1 시작 -->
+	<div id="page1" data-role="page">
+			
+		<div data-role="panel" data-display="overlay" id="mypanel">
+			<ul id="list" data-role="listview">
+			</ul>
+		</div>
+		
+		<div data-role="header" data-theme="a" data-position="fixed">
+			<a href="#mypanel" data-role="button" data-icon="bullets" data-iconpos="notext" class="ui-icon-left"></a>
+			<h1>요있네</h1>
+		</div>
+		
+		<div class="content" data-role="content">
+		<form id="frmLogin">
+			<label for="">이메일계정</label> <input type="email" id="user_id" name="user_id" />
+			<label for="">비밀번호</label> <input type="password" id="user_pass" name="user_pass" />
+		</form>
+			<div id="message"></div>
+			<input type="button" onclick="login();"value="로그인" /> 
+			<a href="join.html" data-role="button" rel="external">회원가입</a>
+			<input type="button" onclick="fb_login();"value="페이스북 계정으로 로그인" /> 
+			<a href="#NFC" data-role="button">NFC 페이지</a> 
+			<a href="#QRCODE" data-role="button">QR코드 페이지</a> 
+			<a href="#CAMERA" data-role="button">카메라 페이지</a> 
+			<a href="#map_page" data-role="button">지도 페이지</a>
+		</div>
+		
+		<div data-role="footer" data-theme="b" data-position="fixed">
+			<h1>Footer</h1>
+		</div>
+	</div>
+	
+	<div id="NFC" data-role="page">
+		<header data-role="header">
+			<h1>헤더부분</h1>
+		</header>
+		<div class="content" data-role="content">
+			<p>NFC페이지 입니다.</p>
+			<p>
+				<a href="#NFCwrite" data-role="button" onclick="ready();">NFC 쓰기</a>
+				<a href="#NFCread" data-role="button" onclick="read();">NFC 읽기</a> <a
+					href="#NFCinit" data-role="button" onclick="initNFC();">NFC 초기화</a>
+			</p>
+		</div>
+		<footer data-role="footer">
+			<h1>푸터부분</h1>
+		</footer>
+	</div>
+	<!-- 페이지3 끝 -->
+	<!-- 페이지4 시작 -->
+	<div id="NFCwrite" data-role="page">
+		<div class="content" data-role="content">
+			<p>NFC쓰기페이지 입니다.</p>
+		</div>
+	</div>
+	<!-- 페이지4 끝 -->
+	<!-- 페이지5 시작 -->
+	<div id="NFCread" data-role="page">
+		<div class="content" data-role="content">
+			<p>NFC읽기페이지 입니다.</p>
+		</div>
+	</div>
+	<!-- 페이지5 끝 -->
+	
+	
+	<!-- 페이지6 시작 -->
+	<div id="NFCinit" data-role="page">
+		<div class="content" data-role="content">
+			<p>NFC 초기화 페이지 입니다.</p>
+		</div>
+	</div>
+	<!-- 페이지6 끝 -->
+	
+	<!-- 페이지7 시작 -->
+	<div id="QRCODE" data-role="page">
+		<header data-role="header">
+			<h1>헤더부분</h1>
+		</header>
+		<div class="content" data-role="content">
+			<p>QR코드 페이지 입니다.</p>
+			<br>
+			<button onclick="scans();">scan qr code</button>
+			<br>
+			<button onclick="encode();">encode qr code</button>
+			<br>
+		</div>
+		<footer data-role="footer">
+			<h1>푸터부분</h1>
+		</footer>
+	</div>
+	<!-- 페이지7 끝 -->
+	
+	<!-- 페이지8 시작 -->
+	<div id="CAMERA" data-role="page">
+		<header data-role="header">
+			<h1>헤더부분</h1>
+		</header>
+		<div class="content" data-role="content">
+			<p>카메라 페이지 입니다.</p>
+			<br>
+			<button onclick="capturePhoto();">Capture Photo</button>
+			<br>
+			<button onclick="capturePhotoEdit();">Capture Editable Photo</button>
+			<br>
+			<button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From
+				Photo Library</button>
+			<br>
+			<button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From
+				Photo Album</button>
+			<br>
+		</div>
+		<footer data-role="footer">
+			<h1>푸터부분</h1>
+		</footer>
+	</div>
+	<!-- 페이지8 끝 -->
+	
+	<!-- 페이지9 시작 -->
+	<div id="map_page" data-role="page">
+		<header data-role="header">
+			<h1>헤더부분</h1>
+		</header>
+		<div class="content" data-role="content">
+			<div id="map_canvas" style="width: 100%; height: 330px;"></div>
+			<br>
+			<button onclick="loadScript();">지도 새로고침</button>
+			<input type="button" onclick="chasePos();" value="위치 추적 시작" /> <input
+				type="button" onclick="stopchase();" value="위치 추적 종료" />
+			<p id="geolocation">위치추적 공간</p>
+		</div>
+		<footer data-role="footer">
+			<h1>푸터부분</h1>
+		</footer>
+	</div>
+	<!-- 페이지9 끝 -->
+
+</body>
+
+</html>
+
+
