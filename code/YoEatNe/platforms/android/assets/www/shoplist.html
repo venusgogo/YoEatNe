@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+<link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script type="text/javascript" src="./js/common.js"></script>
+
+
+<script type="text/javascript" charset="utf-8">
+	document.addEventListener("deviceready", onDeviceReady, false);
+	
+	//폰갭 첫 실행시 기기가 준비될 경우 가장 먼저 실행되는 함수
+	function onDeviceReady() {
+			
+		$.ajax({
+ 			type : "POST",
+ 			url : "http://yoeatne.com/listlist.php",
+ 			dataType : "json",
+ 			success : response_json,
+ 			error : function() {
+ 				alert("getJson failed");
+ 			}
+ 		});
+		
+		document.addEventListener("backbutton", onBackKeyDown, false);
+		panelInit();
+	}
+	
+	function onBackKeyDown() {
+		history.go(-1);		
+	}
+	
+	function response_json(json) {
+		
+		var shopList = json.List;
+		var keyCount = Object.keys(shopList).length;
+		
+		$("#koreanFood").find(".ui-li-count").text("").append(keyCount);
+		$.each(shopList, function(key, value) {			
+// 			alert(key + " : " + value);
+			var shopImg = value.img;
+			var shopName = value.name;
+			var phone = value.phone;
+			var address = value.fulladdress;
+			
+			var shopInfo = "<li><a href='shopDetail.html' rel='external'><img src='http://www.yoeatne.com" + shopImg + "'>" + shopName + "<br>" + phone + "<br>" + address + "</a></li>";
+			
+			$("#koreanFood").after(shopInfo);
+		});
+			$("#shoplist").listview("refresh");
+	}
+</script>
+</head>
+
+<body>
+	<div id="listPage" data-role="page">
+		<div data-role="panel" data-display="overlay" id="mypanel">
+			<ul id="list" data-role="listview">
+			</ul>
+		</div>
+	
+		<div data-role="header" data-position="fixed" data-theme="a" style="overflow: hidden;" data-position="fixed">
+				<a href="#mypanel" data-role="button" data-icon="bullets"
+					data-iconpos="notext" class="ui-icon-left"></a> <a href="#"
+					data-icon="carat-l" class="ui-icon-left" data-rel="back">이전</a>
+				<h1>업체리스트</h1>
+		</div>
+		
+		<div id="listPage" data-role="content">
+			<ul id="shoplist" data-role="listview" data-filter="true" data-filter-placeholder="검색어를 입력하세요.">
+   				<li id="koreanFood" data-role="list-divider">한식<span class="ui-li-count">0</span></li>
+				<li id="chineseFood" data-role="list-divider">중식<span class="ui-li-count">0</span></li>
+				<li id="japaneseFood" data-role="list-divider">일식<span class="ui-li-count">0</span></li>
+				<li id="westernFood" data-role="list-divider">양식<span class="ui-li-count">0</span></li>
+				
+<!-- 				<li><a href="listview.html" id="btn_hasmore">더보기</a></li> -->
+				
+ 			</ul>
+		</div>
+	</div>
+</body>
+</html>

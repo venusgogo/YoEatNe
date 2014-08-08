@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+<link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script type="text/javascript" src="./js/common.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+	var destinationType; // sets the format of returned value
+	var lats, lngs;
+	var useraddr;
+	document.addEventListener("deviceready", onDeviceReady, false);
+	
+	//폰갭 첫 실행시 기기가 준비될 경우 가장 먼저 실행되는 함수
+	function onDeviceReady() {
+		document.addEventListener("backbutton", onBackKeyDown, false);
+		panelInit();
+	}
+	
+	function onBackKeyDown() {
+		navigator.notification.confirm('이전 페이지로 돌아가면 작성 중인 내용이 사라집니다.\n이전 페이지로 돌아가시겠습니까?', onConfirm, '돌아가기', ['확인', '취소']);
+	}
+	
+	function onConfirm(button) {
+		if(button == 1) {
+	// 	    location.href="index.html";
+		    history.go(-1);			
+		}
+		
+	}
+		
+	//회원가입
+	function joinMember() {
+		var join_id = $("#user_id").val();
+		$.ajax({
+			type : "POST",
+			dataType : "html",
+			url : "http://www.yoeatne.com/appJoin.php",
+			data : $("#frmRegister").serialize(),
+			success : function(data) {
+				if(data == "success") {
+					//navigator.notification.alert("Success.");
+					navigator.notification.alert("가입완료 되었습니다.");
+					history.go(-1);
+// 					location.href="index.html";
+				} else {
+					navigator.notification.alert(data);					
+				}
+			}
+// 			,
+// 			error : function(data) {
+// 				navigator.notification.alert("Failed.");
+// 			}
+		});
+		
+	}
+
+</script>
+
+</head>
+<body>
+	<div data-role="page">
+			
+			
+		<div data-role="panel" data-display="overlay" id="mypanel">
+		</div>
+			
+		<div data-role="header"  data-position="fixed" data-theme="a" style="overflow:hidden;">
+			<input type="hidden" id="isLoggedIn" value="false"/>
+			<a href="#mypanel" data-role="button" data-icon="bullets" data-iconpos="notext" class="ui-icon-left"></a>
+			<a href="#" data-icon="carat-l" class="ui-icon-left" data-rel="back">이전</a>
+			<h1>회원가입</h1>
+		</div>
+		<div class="content" data-role="content">
+			<form id="frmRegister">
+				<label for="user_id">이메일계정</label> <input type="email" name="user_id" id="user_id"/>
+				<label for="user_pass">비밀번호</label> <input type="password" name="user_pass" id="user_pass"/>
+				<label>비밀번호 확인</label> <input type="password" name="user_pass_confirm" id="user_pass_confirm"/>
+				<label>이름</label> <input type="text" name="user_name" id="user_name" />
+				<label>닉네임</label> <input type="text" name="user_nick" id="user_nick" />
+				<label>휴대전화</label> <input type="tel"name="user_hphone" id="user_hphone" /> 
+	
+				<fieldset data-role="controlgroup">
+					<legend>성별</legend>
+					<label for="rdMale">남자</label>	<input type="radio" name="sex" id="rdMale" value="man" />   
+					<label for="rdFemale">여자</label> <input type="radio" name="sex" id="rdFemale" value="girl" />
+				</fieldset>
+			</form>
+				
+				<fieldset class="ui-grid-a">
+					<div class="ui-block-a">
+						<input type="button" onClick="joinMember();" value="전송" data-theme="a" />
+					</div>
+					<div class="ui-block-b">
+						<a href="#" data-role="button" data-rel="back" data-theme="a">취소</a>
+					</div>
+				</fieldset>
+				
+		</div>
+<!-- 		<div data-role="footer" data-theme="b" data-position="fixed"> -->
+<!-- 			<h1>Footer</h1> -->
+<!-- 		</div> -->
+	</div>
+
+</body>
+
+</html>
+
+

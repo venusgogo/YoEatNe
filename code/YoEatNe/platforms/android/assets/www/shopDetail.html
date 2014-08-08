@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+<link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script type="text/javascript" src="./js/common.js"></script>
+
+	
+<script type="text/javascript" charset="utf-8">
+	document.addEventListener("deviceready", onDeviceReady, false);
+	
+	//폰갭 첫 실행시 기기가 준비될 경우 가장 먼저 실행되는 함수
+	function onDeviceReady() {
+		
+		document.addEventListener("backbutton", onBackKeyDown, false);
+		panelInit();
+	}
+		
+	function onBackKeyDown() {
+		history.go(-1);		
+	}
+</script>
+</head>
+
+<body>
+	<div data-role="page">
+		<div data-role="panel" data-display="overlay" id="mypanel">
+			<ul id="list" data-role="listview">
+			</ul>
+		</div>
+			
+		<div data-role="header"  data-position="fixed" data-theme="a" style="overflow:hidden;">
+			<a href="#mypanel" data-role="button" data-icon="bullets" data-iconpos="notext" class="ui-icon-left"></a>
+			<a href="#" data-icon="carat-l" class="ui-icon-left" data-rel="back">이전</a>
+			<h1>업체 상세 페이지</h1>
+		</div>
+		
+		<div id="shopDetail" data-role="content">
+			<h1 id="Title">Title</h1>
+			<p id="Phone">phone</p>
+			<p id="Mail">mail</p>
+		</div>
+	</div>
+</body>
+</html>
