@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
 <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
-<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/cordova.js"></script>
 <script type="text/javascript" src="./js/common.js"></script>
 
 	
@@ -16,14 +16,64 @@
 	
 	//폰갭 첫 실행시 기기가 준비될 경우 가장 먼저 실행되는 함수
 	function onDeviceReady() {
-		
+			
 		document.addEventListener("backbutton", onBackKeyDown, false);
 		panelInit();
-	}
 		
+		var getParameter = function (param) {
+			var returnValue;
+			var url = location.toString();
+			var parameters = (url.slice(url.indexOf('?') + 1, url.length)).split('&');
+	
+				for (var i = 0; i < parameters.length; i++) {
+					var varName = parameters[i].split('=')[0];
+		
+					if (varName.toUpperCase() == param.toUpperCase()) {
+						returnValue = parameters[i].split('=')[1];
+						return decodeURIComponent(returnValue);
+					}
+				}
+			};
+
+		var index = getParameter('index');
+		$("#hidIndex").val(index);
+		
+		$.ajax({
+ 			type : "GET",
+ 			url : "http://www.yoeatne.com/listlist.php",
+//  			url : "http://www.yoeatne.com/app_price_search.php",
+ 			dataType : "json",
+ 			success : response_json,
+ 			error : function(data) {
+ 				alert("getJson failed"); 				
+ 			}
+ 		});
+	}
+	
+	function response_json(json) {		
+		var shopList = json.List;
+		var index = $("#hidIndex").val() - 1;
+		var shopImg = shopList[index].img;
+		var shopName = shopList[index].name;
+		var phone = shopList[index].phone;
+		var address = shopList[index].fulladdress;		
+// 		alert(shopList[index].name);
+
+		$("#title").text(shopName);
+		$("#image").attr("src", "http://www.yoeatne.com" + shopImg);
+		$("#phone").text(phone);
+		$("#address").text(address);
+		
+		$.each(shopList, function(num, value) {
+			var temp = "name : " + shopList[num].name;
+			temp += ", " + shopList[num];
+		});
+	}
+	
 	function onBackKeyDown() {
 		history.go(-1);		
-	}
+	}	
+	
 </script>
 </head>
 
@@ -37,13 +87,19 @@
 		<div data-role="header"  data-position="fixed" data-theme="a" style="overflow:hidden;">
 			<a href="#mypanel" data-role="button" data-icon="bullets" data-iconpos="notext" class="ui-icon-left"></a>
 			<a href="#" data-icon="carat-l" class="ui-icon-left" data-rel="back">이전</a>
-			<h1>업체 상세 페이지</h1>
+			<h1 id="title"> <input id="hidIndex" type="hidden" value=""></h1>
 		</div>
 		
 		<div id="shopDetail" data-role="content">
-			<h1 id="Title">Title</h1>
-			<p id="Phone">phone</p>
-			<p id="Mail">mail</p>
+			<input id="txtIndex" type="text" name="index" value="">
+			<div style="text-align:center">
+				<img style="text-align:center" id="image" alt="No image" width="200px" height="100px">
+			</div>
+			<div style="text-align:center">
+				<p id="phone"></p>
+				<p id="address"></p>
+			</div>
+			<p id="temp"></p>
 		</div>
 	</div>
 </body>

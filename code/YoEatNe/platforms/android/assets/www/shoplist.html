@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
 <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
-<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/cordova.js"></script>
 <script type="text/javascript" src="./js/common.js"></script>
 
 
@@ -19,11 +19,18 @@
 			
 		$.ajax({
  			type : "POST",
- 			url : "http://yoeatne.com/listlist.php",
+ 			url : "http://www.yoeatne.com/listlist.php",
+//  			url : "http://www.yoeatne.com/app_price_search.php?search_word=%EC%8A%A4%ED%85%8C%EC%9D%B4%ED%81%AC",
  			dataType : "json",
  			success : response_json,
- 			error : function() {
+ 			error : function(data) {
  				alert("getJson failed");
+ 				var test = data.List;
+ 				
+ 				$.each(test, function(index, value) {			
+// 		 			alert(key + " : " + value); 					
+					alert(value[0].name);
+ 				});
  			}
  		});
 		
@@ -41,18 +48,36 @@
 		var keyCount = Object.keys(shopList).length;
 		
 		$("#koreanFood").find(".ui-li-count").text("").append(keyCount);
-		$.each(shopList, function(key, value) {			
+		$.each(shopList, function(index, value) {			
 // 			alert(key + " : " + value);
 			var shopImg = value.img;
 			var shopName = value.name;
 			var phone = value.phone;
 			var address = value.fulladdress;
+			var shopIndex = ++index; 
 			
-			var shopInfo = "<li><a href='shopDetail.html' rel='external'><img src='http://www.yoeatne.com" + shopImg + "'>" + shopName + "<br>" + phone + "<br>" + address + "</a></li>";
+			var shopInfo = "<li><a href='javascript:goDetail(" + shopIndex + ")' rel='external'><img src='http://www.yoeatne.com" 
+							+ shopImg + "'>" + shopName + "<br>" + phone + "<br>" + address + "</a></li>";
 			
 			$("#koreanFood").after(shopInfo);
 		});
 			$("#shoplist").listview("refresh");
+	}
+	
+	function goDetail(index) {
+				
+		$.ajax({
+ 			type : "GET",
+ 			url : "shopDetail.html",
+ 			data : "index=" + index,
+ 			dataType : "html",
+ 			success : function() {
+ 				window.location.href="shopDetail.html?index=" + index;
+ 			},
+ 			error : function() {
+ 				alert("getJson failed");
+ 			}
+ 		});
 	}
 </script>
 </head>
