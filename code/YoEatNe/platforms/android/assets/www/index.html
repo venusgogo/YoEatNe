@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>회원정보</title>
+
+<link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
+<script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="./js/jquery.mobile-1.4.3.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/cordova.js"></script>
+<script type="text/javascript" src="./js/common.js"></script>
+<script type="text/javascript" src="./lib/phonegap.facebook.inappbrowser.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+		document.addEventListener("deviceready", onDeviceReady, false);
+		
+		
+		//폰갭 첫 실행시 기기가 준비될 경우 가장 먼저 실행되는 함수
+		function onDeviceReady() {
+// 			var db = window.sqlitePlugin.openDatabase({name: "yoeatne.db"});
+			var db = window.openDatabase("yoeatne.db", "1.0", "yoeatne loginDB", 200000);
+		    document.addEventListener("backbutton", onBackKeyDown, false);
+			$("#isLoggedIn").val("false");
+		    panelInit();
+		    
+		}
+		
+		
+</script>
+
+</head>
+
+<body>
+	<div data-role="page">
+		
+		<div data-role="panel" data-display="overlay" id="mypanel">
+      	</div>
+	
+		<header data-role="header" data-position="fixed" data-theme="a" style="overflow:hidden;">
+			<input type="hidden" id="isLoggedIn" value="false"/>
+			<a href="#mypanel" data-role="button" data-icon="bullets" data-iconpos="notext" class="ui-icon-left"></a>
+			<h1>메인 페이지</h1>
+		</header>
+		<div class="content" data-role="content" id="result">
+			<p>환영!</p>
+			<a href="shoplist.html" data-role="button" rel="external">List 보기</a>
+			<a href="login_.html" data-role="button" rel="external">CSS</a>
+			
+			
+			<a href="metaioSDKExampleAREL:///?startTutorialID=LocationBasedAR" data-role="button" >AR</a>
+		</div>
+<!-- 		<footer data-role="footer" data-theme="b" data-position="fixed"> -->
+<!-- 			<h1>Footer</h1> -->
+<!-- 		</footer> -->
+	
+	</div>
+</body>
+</html>
