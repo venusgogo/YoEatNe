@@ -5,8 +5,8 @@
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 
 <link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
-<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
+<script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="./js/jquery.mobile-1.4.3.min.js"></script>
 <script type="text/javascript" charset="utf-8" src="./js/cordova.js"></script>
 <script type="text/javascript" src="./js/common.js"></script>
 
@@ -24,13 +24,7 @@
  			dataType : "json",
  			success : response_json,
  			error : function(data) {
- 				alert("getJson failed");
- 				var test = data.List;
- 				
- 				$.each(test, function(index, value) {			
-// 		 			alert(key + " : " + value); 					
-					alert(value[0].name);
- 				});
+ 				alert("getJson failed"); 				
  			}
  		});
 		
